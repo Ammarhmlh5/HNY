@@ -1,43 +1,32 @@
-const express = require('express');
-const apiariesRouter = require('./apiaries');
-const hivesRouter = require('./hives');
-const supersRouter = require('./supers');
-const framesRouter = require('./frames');
-const inspectionsRouter = require('./inspections');
+/**
+ * نقطة دخول التطبيق الرئيسية
+ * Main Application Entry Point
+ */
 
-const router = express.Router();
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import BeekeepingApp from './components/BeekeepingApp.js';
+import './index.css';
 
-// API Routes
-router.use('/apiaries', apiariesRouter);
-router.use('/hives', hivesRouter);
-router.use('/supers', supersRouter);
-router.use('/frames', framesRouter);
-router.use('/inspections', inspectionsRouter);
+// إنشاء جذر التطبيق
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
-// Health check endpoint
-router.get('/health', (req, res) => {
-    res.json({
-        success: true,
-        message: 'API is running',
-        timestamp: new Date().toISOString()
+// تشغيل التطبيق
+root.render(
+    <React.StrictMode>
+        <BeekeepingApp />
+    </React.StrictMode>
+);
+
+// تسجيل Service Worker للعمل بدون اتصال (اختياري)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+                console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+                console.log('SW registration failed: ', registrationError);
+            });
     });
-});
-
-// API documentation endpoint
-router.get('/', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Beekeeping App API',
-        version: '1.0.0',
-        endpoints: {
-            apiaries: '/api/apiaries',
-            hives: '/api/hives',
-            supers: '/api/supers',
-            frames: '/api/frames',
-            inspections: '/api/inspections',
-            health: '/api/health'
-        }
-    });
-});
-
-module.exports = router;
+}
